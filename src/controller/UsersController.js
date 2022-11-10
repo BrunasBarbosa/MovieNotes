@@ -1,10 +1,11 @@
-const sqliteConnection = require('../database/sqlite');
+// const sqliteConnection = require('../database/sqlite');
 
 class UsersController {
-  async create(request, response) {
+  async creat(request, response) {
     const { name, email, password } = request.body;
-    const database = await sqliteConnection;
-
-    
+    // const database = await sqliteConnection;
+    response.send({ name, email, password });
   }
 }
+
+module.exports = UsersController;
