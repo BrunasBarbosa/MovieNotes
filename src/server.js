@@ -24,8 +24,6 @@ app.use((error, request, response, next) => {
   });
 });
 
-
-
 app.use(express.json());
 
 app.use(routes);
