@@ -1,7 +1,4 @@
-const { response } = require('express');
 const knex = require('../database/knex');
-const notesRoutes = require('../routes/notes.routes');
-
 class NotesController {
   async create(request, response) {
 
