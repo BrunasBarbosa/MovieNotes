@@ -1,1 +1,0 @@
-const sqliteConnection = require('../../sqlite');
