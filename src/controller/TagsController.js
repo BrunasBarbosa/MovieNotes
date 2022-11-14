@@ -5,8 +5,8 @@ class TagsController {
     const { user_id } = request.params;
 
     const tags = await knex('movie_tags')
-    .where({ user_id });
- 
+      .where({ user_id });
+
     return response.json(tags);
   }
 }
