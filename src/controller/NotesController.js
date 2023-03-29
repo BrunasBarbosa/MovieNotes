@@ -1,3 +1,4 @@
+const AppError = require('../utils/AppError');
 const knex = require('../database/knex');
 class NotesController {
   async create(request, response) {
@@ -17,7 +18,7 @@ class NotesController {
         note_id,
         name,
         user_id
-      }
+      };
     });
 
     await knex('movie_tags').insert(tagsInsert);
@@ -35,6 +36,35 @@ class NotesController {
       ...note,
       tags
     });
+  }
+
+  async update(request, response) {
+    const { id } = request.params;
+    const { title, description, rating, tags } = request.body;
+    const user_id = request.user.id;
+
+    if (!title) {
+      throw new AppError('Você não adicionou um título à nota.');
+    }
+
+    await knex('movie_notes')
+      .where({ id })
+      .update({ title, description, rating, updated_at: knex.fn.now() });
+
+    await knex('movie_tags')
+      .where({ note_id: id })
+      .delete();
+
+    const tagsInsert = tags.map(name => {
+      return {
+        note_id: id,
+        name,
+        user_id
+      };
+    });
+
+    await knex('movie_tags').insert(tagsInsert);
+    return response.json();
   }
 
   async delete(request, response) {
@@ -62,24 +92,24 @@ class NotesController {
         .whereIn('name', filterTags)
         .innerJoin('movie_notes', 'movie_notes.id', 'movie_tags.note_id')
         .groupBy('movie_notes.id')
-        .orderBy('movie_notes.title')
+        .orderBy('movie_notes.title');
     } else {
-
       notes = await knex('movie_notes')
         .where({ user_id })
         .whereLike('title', `%${title}%`)
-        .orderBy('title')
+        .orderBy('title');
     }
 
     const userTags = await knex('movie_tags').where({ user_id });
+
     const notesWithTags = notes.map(note => {
       const noteTags = userTags.filter(tag => tag.note_id === note.id);
 
       return {
         ...note,
         tags: noteTags
-      }
-    })
+      };
+    });
 
     return response.json(notesWithTags);
   }
