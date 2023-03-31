@@ -2,25 +2,33 @@ const AppError = require('../utils/AppError');
 const knex = require('../database/knex');
 class NotesController {
   async create(request, response) {
-    const { title, description, rating, tags } = request.body;
-    const user_id = request.user.id;
 
-    const note_id = await knex('movie_notes').insert({
-      title,
-      description,
-      rating,
-      user_id
-    });
+    try {
+      const { title, description, rating, tags } = request.body;
+      const user_id = request.user.id;
 
-    const tagsInsert = tags.map(name => {
-      return {
-        note_id,
-        name,
+      const note_id = await knex('movie_notes').insert({
+        title,
+        description,
+        rating,
         user_id
-      };
-    });
+      });
 
-    await knex('movie_tags').insert(tagsInsert);
+      if (tags.length !== 0) {
+        const tagsInsert = tags.map(name => {
+          return {
+            note_id,
+            name,
+            user_id
+          };
+        });
+
+        await knex('movie_tags').insert(tagsInsert);
+      }
+
+    } catch (error) {
+      throw new AppError("Não foi possível cadastrar a nota.");
+    }
 
     return response.json();
   }
@@ -54,15 +62,18 @@ class NotesController {
       .where({ note_id: id })
       .delete();
 
-    const tagsInsert = tags.map(name => {
-      return {
-        note_id: id,
-        name,
-        user_id
-      };
-    });
+    if (tags.length !== 0) {
+      const tagsInsert = tags.map(name => {
+        return {
+          note_id: id,
+          name,
+          user_id
+        };
+      });
 
-    await knex('movie_tags').insert(tagsInsert);
+      await knex('movie_tags').insert(tagsInsert);
+    }
+
     return response.json();
   }
 
@@ -75,23 +86,20 @@ class NotesController {
   }
 
   async index(request, response) {
-    const { title, tags } = request.query;
+    const { title, tag } = request.query;
 
     const user_id = request.user.id;
 
     let notes;
 
-    if (tags) {
-      const filterTags = tags.split(',').map(tag => tag.trim());
-
+    if (tag) {
       notes = await knex('movie_tags')
-        .select(['movie_notes.id', 'movie_notes.title', 'movie_notes.user_id'])
-        .where('movie_notes.user_id', user_id)
-        .whereLike('movie_notes.title', `%${title}%`)
-        .whereIn('name', filterTags)
         .innerJoin('movie_notes', 'movie_notes.id', 'movie_tags.note_id')
-        .groupBy('movie_notes.id')
+        .where('movie_notes.user_id', user_id)
+        .whereLike('title', `%${title}%`)
+        .whereLike('name', tag)
         .orderBy('movie_notes.title');
+
     } else {
       notes = await knex('movie_notes')
         .where({ user_id })
