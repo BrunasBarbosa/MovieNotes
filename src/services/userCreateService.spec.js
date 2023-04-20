@@ -3,10 +3,15 @@ const UserReposytoryInMemory = require('../repositories/UserReposytoryInMemory')
 const AppError = require('../utils/AppError');
 
 describe('UserCreateService', () => {
-  it('user should be create', async () => {
-    const userReposytory = new UserReposytoryInMemory();
-    const userCreateServices = new UserCreateServices(userReposytory);
+  let userReposytory = null;
+  let userCreateServices = null;
 
+  beforeEach(() => {
+    userReposytory = new UserReposytoryInMemory();
+    userCreateServices = new UserCreateServices(userReposytory);
+  });
+
+  it('user should be create', async () => {
     const user = {
       name: 'Test',
       email: 'user@test.com',
@@ -30,9 +35,6 @@ describe('UserCreateService', () => {
       email: 'user@test.com',
       password: '456'
     };
-
-    const userReposytory = new UserReposytoryInMemory();
-    const userCreateServices = new UserCreateServices(userReposytory);
 
     await userCreateServices.execute(user1);
 
