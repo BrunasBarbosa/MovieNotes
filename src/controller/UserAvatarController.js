@@ -1,5 +1,5 @@
 const UserRepository = require('../repositories/UserRepository');
-const UserAvatarService = require('../services/UserAvatarService');
+const UserAvatarService = require('../services/user/UserAvatarService');
 class UserAvatarController {
   async update(request, response) {
 

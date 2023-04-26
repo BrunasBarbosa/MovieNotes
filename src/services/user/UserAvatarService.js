@@ -1,5 +1,5 @@
-const DiskStorage = require('../providers/DiskStorage');
-const AppError = require('../utils/AppError');
+const DiskStorage = require('../../providers/DiskStorage');
+const AppError = require('../../utils/AppError');
 
 class UserAvatarService {
   constructor(userRepository) {
@@ -25,7 +25,7 @@ class UserAvatarService {
     user.avatar = fileName;
 
     const userAvatarUpdated = await this.userRepository.avatarUpdate({ user, id: user.id });
-    
+
     return userAvatarUpdated;
   }
 }
