@@ -1,7 +1,5 @@
 const UserCreateServices = require('../services/user/UserCreateService');
-
 const UserRepository = require('../repositories/UserRepository');
-
 const UserUpdateService = require('../services/user/UserUpdateService');
 
 const userRepository = new UserRepository();

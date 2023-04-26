@@ -1,34 +1,18 @@
+const NotesCreateService = require('../services/notes/NoteCreateService');
+const NotesRepository = require('../repositories/NotesRepository');
 const AppError = require('../utils/AppError');
 const knex = require('../database/knex');
+
+const notesRepository = new NotesRepository();
 class NotesController {
   async create(request, response) {
 
-    try {
-      const { title, description, rating, tags } = request.body;
-      const user_id = request.user.id;
+    const { title, description, rating, tags } = request.body;
+    const userId = request.user.id;
 
-      const note_id = await knex('movie_notes').insert({
-        title,
-        description,
-        rating,
-        user_id
-      });
+    const notesCreateService = new NotesCreateService(notesRepository);
 
-      if (tags.length !== 0) {
-        const tagsInsert = tags.map(name => {
-          return {
-            note_id,
-            name,
-            user_id
-          };
-        });
-
-        await knex('movie_tags').insert(tagsInsert);
-      }
-
-    } catch (error) {
-      throw new AppError("Não foi possível cadastrar a nota.");
-    }
+    await notesCreateService.execute({ title, description, rating, tags, id: userId });
 
     return response.json();
   }
