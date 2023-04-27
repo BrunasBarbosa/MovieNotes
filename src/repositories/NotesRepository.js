@@ -18,6 +18,12 @@ class NotesRepository {
 
     return { note_id: noteId };
   }
+
+  async findById(id) {
+    const note = await knex('movie_notes').where({ id }).first();
+
+    return note;
+  }
 }
 
 module.exports = NotesRepository;

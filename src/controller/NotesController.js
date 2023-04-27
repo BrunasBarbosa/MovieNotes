@@ -1,4 +1,5 @@
 const NotesCreateService = require('../services/notes/NoteCreateService');
+const NoteShowService = require('../services/notes/NoteShowService');
 const NotesRepository = require('../repositories/NotesRepository');
 const AppError = require('../utils/AppError');
 const knex = require('../database/knex');
@@ -20,13 +21,11 @@ class NotesController {
   async show(request, response) {
     const { id } = request.params;
 
-    const note = await knex('movie_notes').where({ id }).first();
-    const tags = await knex('movie_tags').where({ note_id: id }).orderBy('name');
+    const notesShowService = new NoteShowService(notesRepository);
 
-    return response.json({
-      ...note,
-      tags
-    });
+    const details = await notesShowService.show(id);
+
+    return response.json(details);
   }
 
   async update(request, response) {

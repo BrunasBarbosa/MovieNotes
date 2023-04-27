@@ -20,6 +20,12 @@ class TagsRepository {
 
     await knex('movie_tags').insert(tagsInsert);
   }
+
+  async findByNoteId(id) {
+    const tags = await knex('movie_tags').where({ note_id: id }).orderBy('name');
+
+    return tags;
+  }
 }
 
 module.exports = TagsRepository;
