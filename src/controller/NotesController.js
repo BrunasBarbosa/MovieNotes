@@ -1,5 +1,6 @@
 const NotesCreateService = require('../services/notes/NotesCreateService');
 const NotesUpdateService = require('../services/notes/NotesUpdateService');
+const NotesIndexService = require('../services/notes/NotesIndexService');
 const NotesShowService = require('../services/notes/NotesShowService');
 const NotesRepository = require('../repositories/NotesRepository');
 const knex = require('../database/knex');
@@ -21,7 +22,7 @@ class NotesController {
     const noteId = await notesCreateService.execute({ title, description, rating, id: userId });
 
     if (tags.length !== 0) {
-      await tagsInsertService.execute(tags, noteId, userId);
+      await tagsInsertService.execute({ tags, noteId, userId });
     }
 
     return response.json();
@@ -68,33 +69,9 @@ class NotesController {
 
     const user_id = request.user.id;
 
-    let notes;
+    const notesIndexService = new NotesIndexService(notesRepository);
 
-    if (tag) {
-      notes = await knex('movie_tags')
-        .innerJoin('movie_notes', 'movie_notes.id', 'movie_tags.note_id')
-        .where('movie_notes.user_id', user_id)
-        .whereLike('title', `%${title}%`)
-        .whereLike('name', tag)
-        .orderBy('movie_notes.title');
-
-    } else {
-      notes = await knex('movie_notes')
-        .where({ user_id })
-        .whereLike('title', `%${title}%`)
-        .orderBy('title');
-    }
-
-    const userTags = await knex('movie_tags').where({ user_id });
-
-    const notesWithTags = notes.map(note => {
-      const noteTags = userTags.filter(tag => tag.note_id === note.id);
-
-      return {
-        ...note,
-        tags: noteTags
-      };
-    });
+    const notesWithTags = await notesIndexService.execute({ tag, userId: user_id, title });
 
     return response.json(notesWithTags);
   }

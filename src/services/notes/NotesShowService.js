@@ -1,15 +1,14 @@
-
 const TagsRepository = require('../../repositories/TagsRepository');
 
 class NotesShowService {
-  constructor(noteRepository) {
-    this.noteRepository = noteRepository;
+  constructor(notesRepository) {
+    this.notesRepository = notesRepository;
   }
 
   async show(id) {
     const tagsRepository = new TagsRepository();
 
-    const note = await this.noteRepository.findById(id);
+    const note = await this.notesRepository.findById(id);
     const tags = await tagsRepository.findByNoteId(id);
 
     return {

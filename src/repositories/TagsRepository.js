@@ -2,9 +2,7 @@ const knex = require('../database/knex');
 
 class TagsRepository {
   async fetchTags(id) {
-    const tags = await knex('movie_tags')
-      .where({ user_id: id })
-      .groupBy('name');
+    const tags = await knex('movie_tags').where({ user_id: id });
 
     return tags;
   }
@@ -20,7 +18,6 @@ class TagsRepository {
   }
 
   async deleteTags(noteId) {
-
     return await knex('movie_tags')
       .where({ note_id: noteId })
       .delete();
