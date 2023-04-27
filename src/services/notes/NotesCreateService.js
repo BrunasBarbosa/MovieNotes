@@ -5,9 +5,9 @@ class NotesCreateService {
     this.notesRepository = notesRepository;
   }
 
-  async execute({ title, description, rating, tags, id }) {
+  async execute({ title, description, rating, id }) {
     try {
-      const note = await this.notesRepository.create({ title, description, rating, tags, id });
+      const note = await this.notesRepository.create({ title, description, rating, id });
 
       return note;
     } catch (error) {

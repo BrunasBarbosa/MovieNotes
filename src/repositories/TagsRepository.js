@@ -10,7 +10,6 @@ class TagsRepository {
   }
 
   async insertTags(tagsInsert) {
-
     return await knex('movie_tags').insert(tagsInsert);
   }
 
@@ -18,6 +17,13 @@ class TagsRepository {
     const tags = await knex('movie_tags').where({ note_id: id }).orderBy('name');
 
     return tags;
+  }
+
+  async deleteTags(noteId) {
+
+    return await knex('movie_tags')
+      .where({ note_id: noteId })
+      .delete();
   }
 }
 

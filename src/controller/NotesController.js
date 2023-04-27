@@ -1,8 +1,14 @@
-const NotesCreateService = require('../services/notes/NoteCreateService');
-const NoteShowService = require('../services/notes/NoteShowService');
+const NotesCreateService = require('../services/notes/NotesCreateService');
+const NotesUpdateService = require('../services/notes/NotesUpdateService');
+const NotesShowService = require('../services/notes/NotesShowService');
 const NotesRepository = require('../repositories/NotesRepository');
-const AppError = require('../utils/AppError');
 const knex = require('../database/knex');
+
+const TagsRepository = require('../repositories/TagsRepository');
+const TagsInsertService = require('../services/tags/TagsInsertService');
+
+const tagsRepository = new TagsRepository();
+const tagsInsertService = new TagsInsertService(tagsRepository);
 
 const notesRepository = new NotesRepository();
 class NotesController {
@@ -12,7 +18,11 @@ class NotesController {
 
     const notesCreateService = new NotesCreateService(notesRepository);
 
-    await notesCreateService.execute({ title, description, rating, tags, id: userId });
+    const noteId = await notesCreateService.execute({ title, description, rating, id: userId });
+
+    if (tags.length !== 0) {
+      await tagsInsertService.execute(tags, noteId, userId);
+    }
 
     return response.json();
   }
@@ -20,7 +30,7 @@ class NotesController {
   async show(request, response) {
     const { id } = request.params;
 
-    const notesShowService = new NoteShowService(notesRepository);
+    const notesShowService = new NotesShowService(notesRepository);
 
     const details = await notesShowService.show(id);
 
@@ -30,30 +40,16 @@ class NotesController {
   async update(request, response) {
     const { id } = request.params;
     const { title, description, rating, tags } = request.body;
-    const user_id = request.user.id;
+    const userId = request.user.id;
 
-    if (!title) {
-      throw new AppError('Você não adicionou um título à nota.');
-    }
+    const notesUpdateService = new NotesUpdateService(notesRepository);
 
-    await knex('movie_notes')
-      .where({ id })
-      .update({ title, description, rating, updated_at: knex.fn.now() });
+    await notesUpdateService.execute({ title, description, rating, noteId: id });
 
-    await knex('movie_tags')
-      .where({ note_id: id })
-      .delete();
+    await tagsRepository.deleteTags(id);
 
     if (tags.length !== 0) {
-      const tagsInsert = tags.map(name => {
-        return {
-          note_id: id,
-          name,
-          user_id
-        };
-      });
-
-      await knex('movie_tags').insert(tagsInsert);
+      await tagsInsertService.execute({ tags, noteId: id, userId });
     }
 
     return response.json();

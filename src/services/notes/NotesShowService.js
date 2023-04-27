@@ -1,7 +1,7 @@
 
 const TagsRepository = require('../../repositories/TagsRepository');
 
-class NoteShowService {
+class NotesShowService {
   constructor(noteRepository) {
     this.noteRepository = noteRepository;
   }
@@ -19,4 +19,4 @@ class NoteShowService {
   }
 }
 
-module.exports = NoteShowService;
+module.exports = NotesShowService;

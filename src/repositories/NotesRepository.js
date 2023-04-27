@@ -1,8 +1,6 @@
 const knex = require('../database/knex');
-const TagsRepository = require('./TagsRepository');
-
 class NotesRepository {
-  async create({ title, description, rating, tags, id }) {
+  async create({ title, description, rating, id }) {
     const noteId = await knex('movie_notes').insert({
       title,
       description,
@@ -10,27 +8,20 @@ class NotesRepository {
       user_id: id,
     });
 
-    if (tags.length !== 0) {
-      const tagsRepository = new TagsRepository();
-
-      const tagsInsert = tags.map(name => {
-        return {
-          note_id: noteId,
-          name,
-          user_id: id
-        };
-      });
-
-      tagsRepository.insertTags(tagsInsert);
-    }
-
-    return { note_id: noteId };
+    return noteId;
   }
 
   async findById(id) {
     const note = await knex('movie_notes').where({ id }).first();
 
     return note;
+  }
+
+  async update({ noteId, title, description, rating }) {
+
+    return await knex('movie_notes')
+      .where({ id: noteId })
+      .update({ title, description, rating, updated_at: knex.fn.now() });
   }
 }
 
