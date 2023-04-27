@@ -1,4 +1,5 @@
 const TagsRepository = require('../../repositories/TagsRepository');
+const TagsIndexService = require('../tags/TagsIndexService');
 
 class NotesIndexService {
   constructor(notesRepository) {
@@ -7,6 +8,8 @@ class NotesIndexService {
 
   async execute({ tag, userId, title }) {
     const tagsRepository = new TagsRepository();
+    const tagsIndexService = new TagsIndexService(tagsRepository);
+    
     let notes;
 
     if (tag) {
@@ -15,7 +18,7 @@ class NotesIndexService {
       notes = await this.notesRepository.findByTitle(title, userId);
     }
 
-    const userTags = await tagsRepository.fetchTags(userId);
+    const userTags = await tagsIndexService.execute(userId);
 
     const notesWithTags = notes.map(note => {
       const noteTags = userTags.filter(tag => tag.note_id === note.id);
