@@ -13,7 +13,15 @@ class NotesRepository {
     if (tags.length !== 0) {
       const tagsRepository = new TagsRepository();
 
-      tagsRepository.insertTags(tags, noteId, id);
+      const tagsInsert = tags.map(name => {
+        return {
+          note_id: noteId,
+          name,
+          user_id: id
+        };
+      });
+
+      tagsRepository.insertTags(tagsInsert);
     }
 
     return { note_id: noteId };

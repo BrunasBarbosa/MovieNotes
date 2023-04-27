@@ -7,7 +7,6 @@ const knex = require('../database/knex');
 const notesRepository = new NotesRepository();
 class NotesController {
   async create(request, response) {
-
     const { title, description, rating, tags } = request.body;
     const userId = request.user.id;
 

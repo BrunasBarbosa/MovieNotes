@@ -9,16 +9,9 @@ class TagsRepository {
     return tags;
   }
 
-  async insertTags(tags, noteId, userId) {
-    const tagsInsert = tags.map(name => {
-      return {
-        note_id: noteId,
-        name,
-        user_id: userId
-      };
-    });
+  async insertTags(tagsInsert) {
 
-    await knex('movie_tags').insert(tagsInsert);
+    return await knex('movie_tags').insert(tagsInsert);
   }
 
   async findByNoteId(id) {
